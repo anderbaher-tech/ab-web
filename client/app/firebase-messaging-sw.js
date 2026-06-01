@@ -1,6 +1,14 @@
 const serviceWorkerUrl = new URL(self.location.href);
 const firebaseWebApiKey = serviceWorkerUrl.searchParams.get('apiKey') || '';
 
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 importScripts('https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/12.13.0/firebase-messaging-compat.js');
 

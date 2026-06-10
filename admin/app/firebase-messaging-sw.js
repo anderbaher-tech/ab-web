@@ -1,6 +1,6 @@
 const serviceWorkerUrl = new URL(self.location.href);
 const firebaseWebApiKey = serviceWorkerUrl.searchParams.get('apiKey') || '';
-const attendanceWebBasePath = serviceWorkerUrl.pathname.replace(
+const managerWebBasePath = serviceWorkerUrl.pathname.replace(
   /\/firebase-messaging-sw\.js$/,
   '',
 );
@@ -22,8 +22,8 @@ firebase.initializeApp({
   projectId: 'ander-baher-attendance',
   storageBucket: 'ander-baher-attendance.firebasestorage.app',
   messagingSenderId: '658419766549',
-  appId: '1:658419766549:web:91a4fceed01520dd9051c',
-  measurementId: 'G-JV1QRPPZ67',
+  appId: '1:658419766549:web:84ebf8fb1ca9e284d9051c',
+  measurementId: 'G-7SD56VGTL4',
 });
 
 const messaging = firebase.messaging();
@@ -32,15 +32,21 @@ function isSupportedNotificationRoute(route) {
   const cleanRoute = String(route || '').trim();
 
   return (
-    /^\/attendance\/[^/]+$/i.test(cleanRoute) ||
-    /^\/attendance\/[^/]+\/log$/i.test(cleanRoute) ||
-    /^\/attendance\/[^/]+\/regularise$/i.test(cleanRoute)
+    /^\/[^/]+\/home$/i.test(cleanRoute) ||
+    /^\/[^/]+\/home\/team-members$/i.test(cleanRoute) ||
+    /^\/[^/]+\/home\/regularisation\/[^/]+$/i.test(cleanRoute) ||
+    /^\/[^/]+\/home\/edit-member\/[^/]+$/i.test(cleanRoute) ||
+    /^\/[^/]+\/home\/add-member$/i.test(cleanRoute) ||
+    /^\/[^/]+\/home\/quick-add-member$/i.test(cleanRoute) ||
+    /^\/[^/]+\/home\/attendance-logs$/i.test(cleanRoute) ||
+    /^\/[^/]+\/home\/holiday-plan$/i.test(cleanRoute) ||
+    /^\/[^/]+\/home\/organisation$/i.test(cleanRoute)
   );
 }
 
-function resolveAttendanceAppUrl(route) {
+function resolveManagerAppUrl(route) {
   const cleanRoute = String(route || '').trim();
-  const appBaseUrl = `${self.location.origin}${attendanceWebBasePath}`;
+  const appBaseUrl = `${self.location.origin}${managerWebBasePath}`;
   if (!cleanRoute) {
     return `${appBaseUrl}/#/`;
   }
@@ -61,7 +67,7 @@ messaging.onBackgroundMessage((payload) => {
   const data = payload && payload.data ? payload.data : {};
   const notification = payload && payload.notification ? payload.notification : {};
 
-  const title = notification.title || data.title || 'Ander Baher Attendance';
+  const title = notification.title || data.title || 'Ander Baher Manager';
   const body = notification.body || data.body || '';
   const route = data.route || '';
 
@@ -69,7 +75,7 @@ messaging.onBackgroundMessage((payload) => {
     body,
     data: {
       route,
-      clickUrl: resolveAttendanceAppUrl(route),
+      clickUrl: resolveManagerAppUrl(route),
     },
   });
 });
@@ -79,8 +85,8 @@ self.addEventListener('notificationclick', (event) => {
 
   const data =
     event.notification && event.notification.data ? event.notification.data : {};
-  const clickUrl = resolveAttendanceAppUrl(data.clickUrl || data.route || '');
-  const appBaseUrl = `${self.location.origin}${attendanceWebBasePath}`;
+  const clickUrl = resolveManagerAppUrl(data.clickUrl || data.route || '');
+  const appBaseUrl = `${self.location.origin}${managerWebBasePath}`;
   const route = String(data.route || '').trim();
 
   event.waitUntil(
